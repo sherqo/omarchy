@@ -50,11 +50,6 @@
             "value": "Dnd",
             "label": "Do not disturb",
             "description": "Notification silencing"
-          },
-          {
-            "value": "StayAwake",
-            "label": "Stay awake",
-            "description": "Idle lock and screensaver override"
           }
         ]
       },

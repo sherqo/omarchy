@@ -37,7 +37,9 @@ BarIndicator {
 
   onPressed: function() {
     if (root.bar) {
-      root.bar.run(root.recording ? "omarchy-capture-screenrecording --stop-recording" : "omarchy-menu toggle trigger.capture.screenrecord")
+      // Menu plugin is disabled on this setup: the chooser below replaces
+      // the screenrecord submenu (audio/webcam choice via tofi). Stop path stays.
+      root.bar.run(root.recording ? "omarchy-capture-screenrecording --stop-recording" : "omarchy-capture-screenrecording-menu")
     }
   }
 }

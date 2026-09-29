@@ -67,6 +67,37 @@ if (( ${#options[@]} == 0 )); then
   exit 1
 fi
 
+# Fallback when the menu plugin is disabled (this setup runs tofi instead):
+# pick via tofi, honoring the glyph/subtext return contract above.
+if ! python3 -c 'import json,sys; sys.exit(0 if "omarchy.menu" not in json.load(open(sys.argv[1])).get("disabledPlugins", []) else 1)' "$HOME/.config/omarchy/shell.json" 2>/dev/null; then
+  declare -A display_to_return=()
+  display_lines=()
+  for option in "${options[@]}"; do
+    IFS=$'\t' read -r -a parts <<<"$option"
+    if (( ${#parts[@]} >= 3 )); then
+      label="${parts[1]}"
+      subtext="${parts[2]}"
+      display="$label — $subtext"
+      return_value="$label"$'\t'"$subtext"
+    elif (( ${#parts[@]} == 2 )); then
+      label="${parts[1]}"
+      display="$label"
+      return_value="$label"
+    else
+      display="$option"
+      return_value="$option"
+    fi
+    if [[ -z ${display_to_return[$display]+_} ]]; then
+      display_to_return[$display]="$return_value"
+      display_lines+=("$display")
+    fi
+  done
+  picked=$(printf '%s\n' "${display_lines[@]}" | tofi --prompt-text "$prompt " --auto-accept-single=true 2>/dev/null) || exit 1
+  [[ -n $picked ]] || exit 1
+  printf '%s' "${display_to_return[$picked]}"
+  exit 0
+fi
+
 selection_file=$(mktemp)
 done_file=$(mktemp)
 rm -f "$done_file"

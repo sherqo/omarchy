@@ -34,6 +34,14 @@ done_file=$(mktemp)
 rm -f "$done_file"
 trap 'rm -f "$selection_file" "$done_file"' EXIT
 
+# Fallback when the menu plugin is disabled (this setup runs tofi instead).
+if ! python3 -c 'import json,sys; sys.exit(0 if "omarchy.menu" not in json.load(open(sys.argv[1])).get("disabledPlugins", []) else 1)' "$HOME/.config/omarchy/shell.json" 2>/dev/null; then
+  answer=$(printf '' | tofi --prompt-text "$prompt " --require-match=false 2>/dev/null) || exit 1
+  [[ -n $answer ]] || exit 1
+  printf '%s' "$answer"
+  exit 0
+fi
+
 payload=$(perl -MEncode=decode -MJSON::PP=encode_json -e '
   my $payload = {
     mode => "input",

@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# omarchy:summary=Pick screen recording options (audio/webcam) via tofi
+# omarchy:group=capture
+
+# Menu-free replacement for the screenrecord submenu (menu plugin is
+# disabled on this setup): choose the capture setup, then go straight
+# to the region picker. Recording itself is unchanged.
+set -euo pipefail
+
+choice=$(printf 'No audio\nDesktop audio\nDesktop + microphone\nDesktop + microphone + webcam\n' | tofi --prompt-text "Record " --auto-accept-single=true 2>/dev/null) || exit 0
+[[ -n $choice ]] || exit 0
+
+case "$choice" in
+"Desktop audio")
+  exec omarchy-capture-screenrecording --with-desktop-audio
+  ;;
+"Desktop + microphone")
+  exec omarchy-capture-screenrecording --with-desktop-audio --with-microphone-audio
+  ;;
+"Desktop + microphone + webcam")
+  exec omarchy-capture-screenrecording-with-webcam
+  ;;
+*)
+  exec omarchy-capture-screenrecording
+  ;;
+esac

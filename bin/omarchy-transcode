@@ -125,7 +125,10 @@ copy_to_clipboard() {
   local uri
 
   uri="file://$(realpath -- "$output")"
-  printf '%s\n' "$uri" | wl-copy --type text/uri-list
+  # Detach stdout/stderr: wl-copy daemonizes to serve the clipboard and the
+  # child inherits our fds; anything capturing our output (logs, IPC runners)
+  # would otherwise wait on it forever.
+  printf '%s\n' "$uri" | wl-copy --type text/uri-list >/dev/null 2>&1
 }
 
 main() {
